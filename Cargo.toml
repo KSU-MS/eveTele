@@ -1,0 +1,12 @@
+[package]
+name = "egui_eve_tele"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = { version = "0.24.1", features = ["persistence"] }
+serialport = "4.2.2"
+hex = "0.4.3"
+mcap = "0.9.0"
+foxglove-ws = "0.2.2"
+cantools = "0.2.1"
