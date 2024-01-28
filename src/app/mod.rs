@@ -1,10 +1,12 @@
-use crate::bg::ReadPort;
-use eframe::egui::{self, CentralPanel, ComboBox, SidePanel, TopBottomPanel, Window};
+use crate::bg::{CanFrameRaw, MsgOut, ReadPort};
+use eframe::egui::{self, CentralPanel, ComboBox, SidePanel, TopBottomPanel};
 
 pub struct EveTele {
     pub ports: Vec<String>,
     pub selected: usize,
     pub toggel_test: bool,
+    pub dbc_path: String,
+    pub csv_path: String,
 }
 
 impl eframe::App for EveTele {
@@ -26,34 +28,49 @@ impl eframe::App for EveTele {
 
                         // Button to test serial port
                         if ui.button("Connect").clicked() {
-                            ReadPort::start_bg_read(self.ports[self.selected].clone(), 9600);
+                            ReadPort::start_bg_read(self.ports[self.selected].clone(), 115200);
                         }
-                    }
-
-                    // Button to test DBC parser
-                    if ui.button("Load DBC test").clicked() {
-                        // ReadPort::load_dbc("./ksu.dbc".to_string());
-                        // ReadPort::load_dbc();
                     }
                 });
             });
 
-            SidePanel::left("Widgets").show(ctx, |ui| {
-                ui.heading("Select Widgets"); // Helper text
-                ui.separator();
-                ui.checkbox(&mut self.toggel_test, "Enable test widget");
+            SidePanel::left("Tools").show(ctx, |ui| {
+                ui.vertical(|ui| {
+                    // Button to load DBC
+                    if ui.button("Open DBC").clicked() {
+                        self.dbc_path = rfd::FileDialog::new()
+                            .pick_file()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .to_string();
+
+                        println!("DBC Path: {}", self.dbc_path.clone());
+                    }
+
+                    // Button to load CSV
+                    if ui.button("Open CSV").clicked() {
+                        self.csv_path = rfd::FileDialog::new()
+                            .pick_file()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .to_string();
+
+                        println!("CSV Path: {}", self.dbc_path.clone());
+                    }
+
+                    // Button to test DBC parser
+                    if ui.button("Foxglove ws test").clicked() {
+                        MsgOut::open_fg_ws();
+                    }
+
+                    // Button to parse a log file
+                    if ui.button("Log parse test").clicked() {
+                        CanFrameRaw::parse_log(self.csv_path.clone(), self.dbc_path.clone())
+                    }
+                });
             });
-
-            Window::new("Shock")
-                .open(&mut self.toggel_test)
-                .title_bar(false)
-                .show(ctx, |ui| {});
-
-            Window::new("Temp Δ")
-                .open(&mut self.toggel_test)
-                .title_bar(false)
-                .movable(false)
-                .show(ctx, |ui| ui.label(499.to_string()));
         });
     }
 }
@@ -71,6 +88,8 @@ impl EveTele {
             ports: ReadPort::list_ports(),
             selected: 0,
             toggel_test: false,
+            dbc_path: String::default(),
+            csv_path: String::default(),
         }
     }
 }

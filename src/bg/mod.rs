@@ -5,18 +5,47 @@ mod can_utils;
 mod foxglove_utils;
 mod serial;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct CanFrameRaw {
     pub time: usize,
     pub id: Vec<u8>,
     pub val: Vec<u8>,
 }
 
+#[derive(Clone, Debug)]
+pub struct MsgOut {
+    pub time: usize,
+    pub name: String,
+    pub snames: Vec<String>,
+    pub values: Vec<f32>,
+}
+
 #[derive(Clone)]
 pub struct ReadPort {}
 
 impl CanFrameRaw {
-    pub fn parse_frame(self) {}
+    pub fn parse_frame(self) {
+        can_utils::parse_can_frame(self);
+    }
+
+    pub fn parse_log(path: String, dbc: String) {
+        can_utils::parse_log(path, dbc);
+    }
+}
+
+impl MsgOut {
+    pub fn open_fg_ws() {
+        println!("Init test");
+
+        thread::spawn(move || {
+            // Start a websocket and send some example data
+            let _ = foxglove_utils::test();
+        });
+
+        println!("Test done");
+    }
+
+    // pub fn send_msg(self) {}
 }
 
 impl ReadPort {
@@ -41,6 +70,7 @@ impl ReadPort {
         });
 
         for recv in rx {
+            println!("{:?}", recv);
             CanFrameRaw::parse_frame(recv);
         }
     }
