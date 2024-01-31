@@ -24,11 +24,11 @@ pub async fn test() -> anyhow::Result<()> {
     // Start a channel to talk thru
     let channel = server
         .publish(
-            "/data".to_string(),
-            "ros1".to_string(),
-            "std_msgs/String".to_string(),
-            "string data".to_string(),
-            "ros1msg".to_string(),
+            "/hello_up".to_string(),
+            "protobuf".to_string(),
+            "/hello_up".to_string(),
+            "protobuf".to_string(),
+            "protobuf".to_string(),
             false,
         )
         .await?;
@@ -36,11 +36,11 @@ pub async fn test() -> anyhow::Result<()> {
     // Make a latching channel so that foxglove remebers rare messages better
     let channel_latching = server
         .publish(
-            "/data_latching".to_string(),
-            "ros1".to_string(),
-            "std_msgs/String".to_string(),
-            "string data".to_string(),
-            "ros1msg".to_string(),
+            "/hello_rare".to_string(),
+            "protobuf".to_string(),
+            "/hello_rare".to_string(),
+            "protobuf".to_string(),
+            "protobuf".to_string(),
             true,
         )
         .await?;
@@ -55,12 +55,8 @@ pub async fn test() -> anyhow::Result<()> {
             )
             .await?;
         counter += 1;
-        tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+        tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
     }
-
-    // for msg in CanMsg {}
-
-    // Ok(())
 }
 
 #[tokio::main]

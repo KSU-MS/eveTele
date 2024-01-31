@@ -1,4 +1,4 @@
-use crate::bg::{CanFrameRaw, MsgOut, ReadPort};
+use crate::bg::{FileHandeler, MsgOut, ReadUtils};
 use eframe::egui::{self, CentralPanel, ComboBox, SidePanel, TopBottomPanel};
 
 pub struct EveTele {
@@ -7,6 +7,7 @@ pub struct EveTele {
     pub toggel_test: bool,
     pub dbc_path: String,
     pub csv_path: String,
+    pub baud: u32,
 }
 
 impl eframe::App for EveTele {
@@ -28,7 +29,11 @@ impl eframe::App for EveTele {
 
                         // Button to test serial port
                         if ui.button("Connect").clicked() {
-                            ReadPort::start_bg_read(self.ports[self.selected].clone(), 115200);
+                            ReadUtils::start_bg_read(
+                                &self.dbc_path,
+                                &self.ports[self.selected],
+                                self.baud,
+                            );
                         }
                     }
                 });
@@ -57,7 +62,7 @@ impl eframe::App for EveTele {
                             .unwrap()
                             .to_string();
 
-                        println!("CSV Path: {}", self.dbc_path.clone());
+                        println!("CSV Path: {}", self.csv_path.clone());
                     }
 
                     // Button to test DBC parser
@@ -67,7 +72,9 @@ impl eframe::App for EveTele {
 
                     // Button to parse a log file
                     if ui.button("Log parse test").clicked() {
-                        CanFrameRaw::parse_log(self.csv_path.clone(), self.dbc_path.clone())
+                        // FileHandeler::parse_log(self.csv_path.clone(), self.dbc_path.clone());
+                        // FileHandeler::proto_test();
+                        FileHandeler::pgn_test(self.dbc_path.clone());
                     }
                 });
             });
@@ -85,7 +92,8 @@ impl EveTele {
 
         // Return base app state
         EveTele {
-            ports: ReadPort::list_ports(),
+            ports: ReadUtils::list_ports(),
+            baud: 115200,
             selected: 0,
             toggel_test: false,
             dbc_path: String::default(),

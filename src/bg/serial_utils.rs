@@ -27,20 +27,31 @@ pub fn read_out(port: &mut Box<dyn SerialPort>) -> CanFrameRaw {
     // then collect it into a vec. Also the basic message scructure goes like
     // (timestamp),(ID),(Length),(msg)
     let read_val: Vec<&str> = string_vec.split(",").into_iter().collect();
+    let id_str;
+
+    // Parse for timestamp
+    let time = read_val[0].parse::<usize>().unwrap_or(0);
 
     // Scan the data for hex info
-    let id_out = hex::decode(read_val[1]).unwrap_or(vec![0]);
-    let val_out = hex::decode(read_val[3]).unwrap_or(vec![0]);
+    // This fixes a stupid fucking error with hex crate
+    if (1 - ((read_val[1].len() & 1) << 1) as i32) == -1 {
+        id_str = "0".to_owned() + read_val[1];
+    } else {
+        id_str = read_val[1].to_string();
+    }
 
-    return CanFrameRaw {
-        time: read_val[0].parse().unwrap_or(0),
-        id: id_out,
-        val: val_out,
-    };
+    // Take the two bytes, do some casting and some bit shifting, and assign an output
+    let id_vec = hex::decode(id_str).unwrap_or(vec![255, 0]);
+    let id = ((id_vec[0] as u16) << 8) | id_vec[1] as u16;
+
+    // Parse for the bytes
+    let val = hex::decode(read_val[3]).unwrap_or(vec![0]);
+
+    return CanFrameRaw { time, id, val };
 }
 
 // Returns a configured port
-pub fn open_port(sel_port: String, sel_baud: u32) -> Box<dyn SerialPort> {
+pub fn open_port(sel_port: &String, sel_baud: u32) -> Box<dyn SerialPort> {
     println!("Opening port: {}", sel_port);
 
     // Connect to the port
