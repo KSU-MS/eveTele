@@ -41,13 +41,18 @@ pub fn read_out(port: &mut Box<dyn SerialPort>) -> CanFrameRaw {
     }
 
     // Take the two bytes, do some casting and some bit shifting, and assign an output
+    // FIXME: This will fucking die when the inverter feels like sending an extented ID
     let id_vec = hex::decode(id_str).unwrap_or(vec![255, 0]);
     let id = ((id_vec[0] as u16) << 8) | id_vec[1] as u16;
 
     // Parse for the bytes
     let val = hex::decode(read_val[3]).unwrap_or(vec![0]);
 
-    return CanFrameRaw { time, id, val };
+    return CanFrameRaw {
+        time,
+        id: id as u32,
+        val,
+    };
 }
 
 // Returns a configured port

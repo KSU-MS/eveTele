@@ -72,9 +72,8 @@ impl eframe::App for EveTele {
 
                     // Button to parse a log file
                     if ui.button("Log parse test").clicked() {
-                        // FileHandeler::parse_log(self.csv_path.clone(), self.dbc_path.clone());
+                        FileHandeler::parse_log(self.csv_path.clone(), self.dbc_path.clone());
                         // FileHandeler::proto_test();
-                        FileHandeler::pgn_test(self.dbc_path.clone());
                     }
                 });
             });

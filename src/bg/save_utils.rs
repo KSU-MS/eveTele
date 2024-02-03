@@ -1,4 +1,7 @@
 use std::fs;
+use std::io;
+
+use super::MsgOut;
 
 use protobuf::descriptor::FileDescriptorProto;
 use protobuf::reflect::FileDescriptor;
@@ -50,4 +53,30 @@ pub fn proto_test() {
 
     // Print it as text format.
     assert_eq!("aaa: 42", protobuf::text_format::print_to_string(&*mmm));
+}
+
+pub fn save_csv(msgs: Vec<MsgOut>) {
+    // Init a struct for writing utils
+    let mut wtr = csv::Writer::from_path("./test.csv").unwrap();
+
+    // The records are written just like our logger code
+    wtr.write_record(&["time", "message", "label", "value", "unit"]);
+
+    // Iterates over every message
+    for msg in msgs {
+        // Iterates over every signal
+        for i in 0..msg.snames.len() {
+            // Writes out line
+            wtr.write_record(&[
+                msg.time.to_string(),
+                msg.name.to_string(),
+                msg.snames[i].to_string(),
+                msg.values[i].to_string(),
+                msg.units[i].to_string(),
+            ]);
+        }
+    }
+
+    // Saves the file
+    wtr.flush();
 }

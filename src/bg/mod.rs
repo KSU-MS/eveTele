@@ -5,7 +5,7 @@ use canparse::pgn::PgnLibrary;
 
 mod can_utils;
 mod foxglove_utils;
-mod proto_utils;
+mod save_utils;
 mod serial_utils;
 
 pub struct ReadUtils {}
@@ -19,17 +19,18 @@ pub struct FileHandeler {
 #[derive(Clone, Debug)]
 pub struct CanFrameRaw {
     pub time: usize,
-    pub id: u16,
+    pub id: u32,
     pub val: Vec<u8>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct MsgOut {
     pub time: usize,
     pub name: String,
     pub snames: Vec<String>,
     pub sexplain: Vec<String>,
     pub values: Vec<f32>,
+    pub units: Vec<String>,
 }
 
 impl ReadUtils {
@@ -68,21 +69,19 @@ impl ReadUtils {
 
 impl FileHandeler {
     pub fn proto_test() {
-        proto_utils::proto_test();
-    }
-
-    pub fn pgn_test(dbc: String) {
-        can_utils::test_pgns(dbc);
+        save_utils::proto_test();
     }
 
     pub fn parse_log(path: String, dbc: String) {
-        can_utils::parse_csv(path, dbc);
+        let msgs = can_utils::parse_csv(path, dbc);
+
+        save_utils::save_csv(msgs);
     }
 }
 
 impl CanFrameRaw {
     pub fn parse_frame(self, lib: &PgnLibrary) {
-        can_utils::parse_can_frame(&lib, self);
+        // can_utils::parse_can_frame(&lib, self);
     }
 }
 
