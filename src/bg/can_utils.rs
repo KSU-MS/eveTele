@@ -7,7 +7,7 @@ pub fn load_lib(dbc: &String) -> PgnLibrary {
     PgnLibrary::from_dbc_file(dbc, false).expect("Failed to load DBC")
 }
 
-pub fn parse_csv(path: String, dbc: String) -> Vec<MsgOut> {
+pub fn parse_csv(path: &String, dbc: &String) -> Vec<MsgOut> {
     // Parse dbc file THIS WILL FAIL IF ANY MESSAGE NAMES HAVE AN UNDERSCORE NEED TO FIX
     let lib = PgnLibrary::from_dbc_file(dbc, false).expect("Failed to load DBC");
 
@@ -16,9 +16,6 @@ pub fn parse_csv(path: String, dbc: String) -> Vec<MsgOut> {
 
     // Make out vec to return
     let mut msgs: Vec<MsgOut> = Vec::new();
-
-    let mut counter: u32 = 0;
-    let mut err_counter: u32 = 0;
 
     // Iterate over each row of the CSV
     for res in rdr.records() {

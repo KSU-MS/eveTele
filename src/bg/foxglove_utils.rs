@@ -34,16 +34,16 @@ pub async fn test() -> anyhow::Result<()> {
         .await?;
 
     // Make a latching channel so that foxglove remebers rare messages better
-    let channel_latching = server
-        .publish(
-            "/hello_rare".to_string(),
-            "protobuf".to_string(),
-            "/hello_rare".to_string(),
-            "protobuf".to_string(),
-            "protobuf".to_string(),
-            true,
-        )
-        .await?;
+    // let channel_latching = server
+    //     .publish(
+    //         "/hello_rare".to_string(),
+    //         "protobuf".to_string(),
+    //         "/hello_rare".to_string(),
+    //         "protobuf".to_string(),
+    //         "protobuf".to_string(),
+    //         true,
+    //     )
+    //     .await?;
 
     // Send an example message
     let mut counter = 0;
@@ -58,6 +58,3 @@ pub async fn test() -> anyhow::Result<()> {
         tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
     }
 }
-
-#[tokio::main]
-pub async fn open_conn(ip: [u32; 4], port: u32) {}

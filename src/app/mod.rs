@@ -1,18 +1,19 @@
-use crate::bg::{FileHandeler, MsgOut, ReadUtils};
+use crate::bg::{MsgOut, RWUtils};
 use eframe::egui::{self, CentralPanel, ComboBox, SidePanel, TopBottomPanel};
 
+#[derive(Default)]
 pub struct EveTele {
     pub ports: Vec<String>,
     pub selected: usize,
-    pub toggel_test: bool,
+    pub baud: u32,
     pub dbc_path: String,
     pub csv_path: String,
-    pub baud: u32,
+    pub out_path: String,
 }
 
 impl eframe::App for EveTele {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        CentralPanel::default().show(ctx, |ui| {
+        CentralPanel::default().show(ctx, |_ui| {
             // The header bar across the top of the window
             TopBottomPanel::top("Header").show(ctx, |ui| {
                 // Makes things horizontal
@@ -29,11 +30,11 @@ impl eframe::App for EveTele {
 
                         // Button to test serial port
                         if ui.button("Connect").clicked() {
-                            ReadUtils::start_bg_read(
+                            RWUtils::start_bg_read(
                                 &self.dbc_path,
                                 &self.ports[self.selected],
                                 self.baud,
-                            );
+                            )
                         }
                     }
                 });
@@ -72,8 +73,19 @@ impl eframe::App for EveTele {
 
                     // Button to parse a log file
                     if ui.button("Log parse test").clicked() {
-                        FileHandeler::parse_log(self.csv_path.clone(), self.dbc_path.clone());
-                        // FileHandeler::proto_test();
+                        RWUtils::parse_log(
+                            &self.dbc_path,
+                            &self.csv_path,
+                            &"./test.csv".to_string(),
+                        );
+                    }
+
+                    if ui.button("Proto build test").clicked() {
+                        RWUtils::my_pb_test();
+                    }
+
+                    if ui.button("MCAP save test").clicked() {
+                        RWUtils::my_mcap_test();
                     }
                 });
             });
@@ -91,12 +103,9 @@ impl EveTele {
 
         // Return base app state
         EveTele {
-            ports: ReadUtils::list_ports(),
+            ports: RWUtils::list_ports(),
             baud: 115200,
-            selected: 0,
-            toggel_test: false,
-            dbc_path: String::default(),
-            csv_path: String::default(),
+            ..Default::default()
         }
     }
 }

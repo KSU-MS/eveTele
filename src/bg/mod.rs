@@ -8,13 +8,8 @@ mod foxglove_utils;
 mod save_utils;
 mod serial_utils;
 
-pub struct ReadUtils {}
-
-pub struct FileHandeler {
-    pub dbc: PgnLibrary,
-    pub csv_in_path: String,
-    pub mcap_out_path: String,
-}
+#[derive(Default)]
+pub struct RWUtils {}
 
 #[derive(Clone, Debug)]
 pub struct CanFrameRaw {
@@ -33,7 +28,7 @@ pub struct MsgOut {
     pub units: Vec<String>,
 }
 
-impl ReadUtils {
+impl RWUtils {
     // Spit out all ports into vec
     pub fn list_ports() -> Vec<String> {
         serial_utils::list_ports()
@@ -53,11 +48,8 @@ impl ReadUtils {
         thread::spawn(move || {
             // Continueously read data out from the port into the channel
             loop {
-                tx.send(CanFrameRaw::parse_frame(
-                    serial_utils::read_out(&mut port),
-                    &lib,
-                ))
-                .unwrap();
+                tx.send(serial_utils::read_out(&mut port).parse_frame(&lib))
+                    .unwrap();
             }
         });
 
@@ -65,23 +57,29 @@ impl ReadUtils {
             println!("{:?}", recv);
         }
     }
-}
 
-impl FileHandeler {
-    pub fn proto_test() {
-        save_utils::proto_test();
+    pub fn parse_log(dbc_path: &String, in_path: &String, out_path: &String) {
+        let msgs = can_utils::parse_csv(in_path, dbc_path);
+
+        println!("Parsed CSV into MsgOut");
+
+        save_utils::save_csv(out_path, msgs);
+
+        println!("Saved MsgOut to CSV");
     }
 
-    pub fn parse_log(path: String, dbc: String) {
-        let msgs = can_utils::parse_csv(path, dbc);
+    pub fn my_pb_test() {
+        save_utils::build_proto();
+    }
 
-        save_utils::save_csv(msgs);
+    pub fn my_mcap_test() {
+        save_utils::mcap_test();
     }
 }
 
 impl CanFrameRaw {
-    pub fn parse_frame(self, lib: &PgnLibrary) {
-        // can_utils::parse_can_frame(&lib, self);
+    pub fn parse_frame(self, lib: &PgnLibrary) -> MsgOut {
+        can_utils::parse_frame(&lib, self)
     }
 }
 
