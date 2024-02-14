@@ -1,4 +1,4 @@
-use crate::bg::{MsgOut, RWUtils};
+use crate::bg::{CanFrameRaw, MsgOut, RWUtils};
 use eframe::egui::{self, CentralPanel, ComboBox, SidePanel, TopBottomPanel};
 
 #[derive(Default)]
@@ -86,6 +86,10 @@ impl eframe::App for EveTele {
 
                     if ui.button("MCAP save test").clicked() {
                         RWUtils::my_mcap_test();
+                    }
+
+                    if ui.button("Parsing testing").clicked() {
+                        CanFrameRaw::parse_test(&self.dbc_path);
                     }
                 });
             });

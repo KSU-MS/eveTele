@@ -81,6 +81,10 @@ impl CanFrameRaw {
     pub fn parse_frame(self, lib: &PgnLibrary) -> MsgOut {
         can_utils::parse_frame(&lib, self)
     }
+
+    pub fn parse_test(lib: &String) {
+        can_utils::parse_test(&lib);
+    }
 }
 
 impl MsgOut {

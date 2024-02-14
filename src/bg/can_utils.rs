@@ -7,8 +7,43 @@ pub fn load_lib(dbc: &String) -> PgnLibrary {
     PgnLibrary::from_dbc_file(dbc, false).expect("Failed to load DBC")
 }
 
+pub fn parse_test(dbc: &String) {
+    // Parse dbc file
+    let lib = PgnLibrary::from_dbc_file(dbc, false).expect("Failed to load DBC");
+
+    // Test vars
+    let id_str = "A6".to_string();
+    let test_val = "FFFFFEFF00000000".to_string();
+
+    // Get ID
+    let id: u32;
+
+    if (1 - ((id_str.len() & 1) << 1) as i32) == -1 {
+        // Make it not odd
+        let id_vec = "0".to_owned() + id_str.as_str();
+        id = BigEndian::read_u16(hex::decode(&id_vec).unwrap().as_slice()) as u32;
+    } else if id_str.len() <= 2 {
+        // Byte order will kill itself with less than 2 bytes
+        id = hex::decode(&id_str).unwrap()[0] as u32;
+    } else {
+        id = BigEndian::read_u32(hex::decode(&id_str).unwrap().as_slice());
+    }
+
+    //
+    // Parse for the bytes
+    let val = hex::decode(test_val).unwrap_or(vec![0]);
+
+    println!("{:?}", lib.get_pgn(id));
+
+    // Print out the test result
+    println!("{}", id);
+    println!("{:?}", val);
+    println!("");
+    println!("{:?}", parse_frame(&lib, CanFrameRaw { time: 0, id, val }));
+}
+
 pub fn parse_csv(path: &String, dbc: &String) -> Vec<MsgOut> {
-    // Parse dbc file THIS WILL FAIL IF ANY MESSAGE NAMES HAVE AN UNDERSCORE NEED TO FIX
+    // Parse dbc file
     let lib = PgnLibrary::from_dbc_file(dbc, false).expect("Failed to load DBC");
 
     // Get an object to start reading the CSV
@@ -76,7 +111,8 @@ pub fn parse_frame(lib: &PgnLibrary, msg: CanFrameRaw) -> MsgOut {
             for sig in pgn.spns.iter() {
                 snames.push(sig.1.name.clone());
                 sexplain.push(sig.1.description.clone());
-                values.push(sig.1.parse_message(msg.val.as_slice()).unwrap_or(0.0) as f32);
+                println!("{}", sig.1.parse_message(msg.val.as_slice()).unwrap());
+                values.push(sig.1.parse_message(msg.val.as_slice()).unwrap());
                 units.push(sig.1.units.clone());
             }
 
