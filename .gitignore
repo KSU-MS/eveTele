@@ -3,3 +3,6 @@ MDY_10-24-2023_HMS_21-59-54.CSV
 test.csv
 test.mcap
 test.proto
+app/__pycache__
+tools/__pycache__
+auto_dbc.proto

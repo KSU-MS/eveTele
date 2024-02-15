@@ -1,17 +1,36 @@
 import customtkinter
 
-from tools.can_utils import load_db
+from tools.dbc_utils import load_db, write_proto
 
 
-def basic_layout(app):
+def basic_layout(app: customtkinter.CTk):
     # Define the frame to hold everything
-    frame_1 = customtkinter.CTkFrame(master=app)
-    frame_1.pack(pady=20, padx=60, fill="both", expand=True)
+    frame = customtkinter.CTkFrame(master=app)
+    frame.pack(pady=0, padx=0, fill="both", expand=True)
 
     # Make a button to load the DBC
-    button_1 = customtkinter.CTkButton(
-        master=frame_1,
-        command=load_db,
-        text="DBC load test",
+    dbc_button = customtkinter.CTkButton(
+        master=frame,
+        command=parse_db,
+        text="DBC parse test",
     )
-    button_1.pack(pady=10, padx=10)
+    dbc_button.pack(pady=10, padx=10)
+
+    proto_test = customtkinter.CTkButton(
+        master=frame,
+        command=make_proto,
+        text="proto gen test",
+    )
+    proto_test.pack(pady=10, padx=10)
+
+    return app
+
+
+def parse_db() -> None:
+    load_db(customtkinter.filedialog.askopenfilename())
+    return None
+
+
+def make_proto() -> None:
+    write_proto(customtkinter.filedialog.askopenfilename())
+    return None
